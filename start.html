@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Démarrage Rapide - AgriDetect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 900px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .header .emoji {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+        }
+
+        .version {
+            display: inline-block;
+            background: #2ecc71;
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .status {
+            background: #ecf0f1;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #bdc3c7;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .status-label {
+            flex: 1;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .status-value {
+            font-weight: normal;
+            color: #7f8c8d;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            padding: 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .info-box {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 2rem 0;
+        }
+
+        .info-box h3 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box p {
+            color: #856404;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #ecf0f1;
+            color: #7f8c8d;
+        }
+
+        .quick-links {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+
+        .quick-links h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .quick-links ul {
+            list-style: none;
+        }
+
+        .quick-links li {
+            padding: 0.5rem 0;
+        }
+
+        .quick-links a {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .quick-links a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: #ecf0f1;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .feature-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card h4 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="emoji">🌾</div>
+            <h1>AgriDetect</h1>
+            <p>Système de Détection Intelligent des Maladies des Cultures</p>
+            <span class="version">v1.0.0</span>
+        </div>
+
+        <div class="info-box">
+            <h3>⚠️ Avant de Commencer</h3>
+            <p>Assurez-vous que l'API AgriDetect est lancée. Ouvrez un terminal Git Bash et exécutez :</p>
+            <code style="display: block; background: white; padding: 0.5rem; margin-top: 0.5rem; border-radius: 5px;">
+                uvicorn main:app --reload --host 0.0.0.0 --port 8000
+            </code>
+        </div>
+
+        <div class="status">
+            <h3 style="margin-bottom: 1rem; color: #2c3e50;">📊 État du Système</h3>
+            <div class="status-item">
+                <span class="status-icon">🔧</span>
+                <span class="status-label">API Backend</span>
+                <span class="status-value">http://localhost:8000</span>
+            </div>
+            <div class="status-item">
+                <span class="status-icon">💾</span>
+                <span class="status-label">PostgreSQL</span>
+                <span class="status-value">Port 5432</span>
+            </div>
+            <div class="status-item">
+                <span class="status-icon">⚡</span>
+                <span class="status-label">Redis</span>
+                <span class="status-value">Port 6379</span>
+            </div>
+            <div class="status-item">
+                <span class="status-icon">🗄️</span>
+                <span class="status-label">PgAdmin</span>
+                <span class="status-value">http://localhost:5050</span>
+            </div>
+        </div>
+
+        <h3 style="color: #2c3e50; margin-bottom: 1rem;">🚀 Accès Rapide</h3>
+        <div class="buttons">
+            <a href="index.html" class="btn btn-primary">
+                🔍 Détection de Maladies
+            </a>
+            <a href="chat.html" class="btn btn-secondary">
+                💬 Chat Bot Agricole
+            </a>
+            <a href="dashboard.html" class="btn btn-info">
+                📊 Tableau de Bord
+            </a>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="icon">🔬</div>
+                <h4>Analyse IA</h4>
+                <p>Détection précise des maladies</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">💊</div>
+                <h4>Traitements</h4>
+                <p>Recommandations personnalisées</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🛡️</div>
+                <h4>Prévention</h4>
+                <p>Conseils pour protéger vos cultures</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📈</div>
+                <h4>Statistiques</h4>
+                <p>Suivi en temps réel</p>
+            </div>
+        </div>
+
+        <div class="quick-links">
+            <h3>🔗 Liens Utiles</h3>
+            <ul>
+                <li>📚 <a href="http://localhost:8000/docs" target="_blank">Documentation API (Swagger)</a></li>
+                <li>📖 <a href="http://localhost:8000/redoc" target="_blank">Documentation Alternative (ReDoc)</a></li>
+                <li>✅ <a href="http://localhost:8000/health" target="_blank">Health Check API</a></li>
+                <li>🗄️ <a href="http://localhost:5050" target="_blank">PgAdmin (Base de données)</a></li>
+                <li>📄 <a href="README.md">README - Documentation Complète</a></li>
+                <li>🌐 <a href="README_WEB.md">README Web - Guide Interface</a></li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p><strong>Projet de Fin d'Étude - 2025</strong></p>
+            <p>Cours DIT / Développement d'Applications</p>
+            <p style="margin-top: 1rem;">Made with 💚 for Agriculture</p>
+        </div>
+    </div>
+
+    <script>
+        // Vérifier si l'API est accessible
+        fetch('http://localhost:8000/health')
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ API is running');
+                } else {
+                    console.warn('⚠️ API returned non-OK status');
+                }
+            })
+            .catch(error => {
+                console.warn('⚠️ API is not accessible. Make sure it\'s running!');
+            });
+    </script>
+</body>
+</html>

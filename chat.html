@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgriDetect - Chatbot Agricole</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Tu peux mettre ça dans style.css si tu préfères */
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #f5f9ff 0%, #e7f3ff 50%, #ffffff 100%);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: #0f766e;
+      color: #fff;
+    }
+    .navbar .nav-menu a {
+      color: #e2e8f0;
+    }
+    .navbar .nav-menu a.active {
+      color: #fff;
+      border-bottom: 2px solid rgba(255,255,255,0.7);
+    }
+    .nav-lang select {
+      border: none;
+      border-radius: .5rem;
+      padding: .25rem .5rem;
+    }
+
+    .chat-page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+    }
+
+    .chat-shell {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 1.5rem;
+      align-items: stretch;
+    }
+
+    /* panneau de gauche */
+    .chat-side {
+      background: #ffffffaa;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(15, 118, 110, 0.08);
+      border-radius: 1.25rem;
+      padding: 1.25rem;
+      box-shadow: 0 10px 30px rgba(15, 118, 110, 0.05);
+      height: max-content;
+    }
+    .chat-side h3 {
+      margin-bottom: .75rem;
+    }
+    .chat-side p {
+      color: #475569;
+      font-size: .9rem;
+      line-height: 1.4;
+    }
+    .side-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      background: #ecfdf3;
+      color: #166534;
+      padding: .25rem .6rem;
+      border-radius: 999px;
+      font-size: .7rem;
+      margin-bottom: .75rem;
+    }
+
+    /* carte de chat */
+    .chat-card {
+      background: #fff;
+      border-radius: 1.25rem;
+      border: 1px solid rgba(148, 163, 184, .2);
+      box-shadow: 0 12px 40px rgba(15,23,42,.05);
+      display: flex;
+      flex-direction: column;
+      min-height: 540px;
+      max-height: calc(100vh - 160px);
+    }
+
+    .chat-header {
+      padding: 1rem 1.25rem .75rem;
+      border-bottom: 1px solid rgba(148,163,184,.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    .chat-header .title {
+      display: flex;
+      flex-direction: column;
+      gap: .25rem;
+    }
+    .chat-header small {
+      color: #94a3b8;
+    }
+    .status-dot {
+      width: 10px; height: 10px;
+      border-radius: 999px;
+      background: #22c55e;
+      display: inline-block;
+      margin-right: .35rem;
+    }
+
+    .chat-messages {
+      padding: 1.25rem 1.25rem 1rem;
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: .9rem;
+      background: radial-gradient(circle at top, #ffffff 0%, #f8fafc 100%);
+    }
+
+    .message {
+      display: flex;
+      gap: .5rem;
+      max-width: 80%;
+    }
+    .bot-message {
+      align-items: flex-start;
+    }
+    .user-message {
+      margin-left: auto;
+      flex-direction: row-reverse;
+      text-align: right;
+    }
+
+    .message-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: #0f766e;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: .85rem;
+      flex: 0 0 30px;
+    }
+    .user-message .message-avatar {
+      background: #475569;
+    }
+
+    .message-content {
+      background: #ecfeff;
+      border: 1px solid rgba(15, 118, 110,.12);
+      border-radius: 1rem;
+      padding: .5rem .75rem .25rem;
+      font-size: .9rem;
+      line-height: 1.3;
+      color: #0f172a;
+    }
+    .user-message .message-content {
+      background: #0f766e;
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .message-time {
+      display: block;
+      font-size: .65rem;
+      color: rgba(15,23,42,.35);
+      margin-top: .35rem;
+    }
+    .user-message .message-time {
+      color: rgba(255,255,255,.6);
+    }
+
+    .suggestions {
+      padding: 0 1.25rem .75rem;
+      border-top: 1px solid rgba(148,163,184,.17);
+      background: #fff;
+    }
+    .suggestions-title {
+      color: #94a3b8;
+      font-size: .7rem;
+      margin-bottom: .35rem;
+    }
+    .suggestions-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    .suggestion-btn {
+      background: #ecfeff;
+      border: 1px solid rgba(15,118,110,.15);
+      color: #0f766e;
+      border-radius: 999px;
+      padding: .35rem .75rem;
+      font-size: .72rem;
+      cursor: pointer;
+      transition: .15s ease-in-out;
+    }
+    .suggestion-btn:hover {
+      background: #0f766e;
+      color: #fff;
+    }
+
+    .chat-input-bar {
+      display: flex;
+      gap: .5rem;
+      padding: .6rem 1.25rem 1rem;
+      border-top: 1px solid rgba(148,163,184,.17);
+      background: #fff;
+    }
+    #chatInput {
+      flex: 1;
+      border: 1px solid rgba(148,163,184,.45);
+      border-radius: .75rem;
+      padding: .4rem .6rem;
+      outline: none;
+      transition: .15s ease-in-out;
+    }
+    #chatInput:focus {
+      border-color: #0f766e;
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+    }
+    .btn-primary {
+      background: #0f766e;
+      border: none;
+      color: #fff;
+      border-radius: .75rem;
+      padding: .4rem 1rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: .15s;
+    }
+    .btn-primary:hover {
+      background: #115e57;
+    }
+
+    @media (max-width: 960px) {
+      .chat-shell {
+        grid-template-columns: 1fr;
+      }
+      .chat-card {
+        max-height: none;
+        min-height: 520px;
+      }
+      .message { max-width: 100%; }
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container navbar-flex">
+      <div class="logo">
+        <h1>🌾 AgriDetect</h1>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="index.html">Détection</a></li>
+        <li><a href="chat.html" class="active">Chat Bot</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+      <div class="nav-lang">
+        <label for="languageSelect" class="sr-only">Langue</label>
+        <select id="languageSelect" name="languageSelect">
+          <option value="auto">Langue auto</option>
+          <option value="fr" selected>Français</option>
+          <option value="wo">Wolof</option>
+          <option value="pu">Pulaar</option>
+        </select>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PAGE CHAT -->
+  <main class="container chat-page">
+    <div class="chat-shell">
+      <!-- Panneau gauche -->
+      <aside class="chat-side">
+        <span class="side-badge">v1.0 • multi-langues</span>
+        <h3>Conseils</h3>
+        <p>
+          Indiquez la culture <strong>(tomate, maïs, poivron...)</strong> et 1-2 symptômes
+          pour obtenir une fiche précise.
+        </p>
+        <p style="margin-top:1rem;font-size:.8rem;color:#94a3b8;">
+          Exemple : <br> <code>tomate feuilles jaunes enroulées</code><br>
+          ou <code>comment traiter le mildiou sur la tomate ?</code>
+        </p>
+      </aside>
+
+      <!-- Carte de chat -->
+      <section class="chat-card" aria-label="Chatbot agricole">
+        <header class="chat-header">
+          <div class="title">
+            <h2 style="font-size:1rem;display:flex;align-items:center;gap:.3rem;">
+              <span class="status-dot" aria-hidden="true"></span>Assistant AgriDetect
+            </h2>
+            <small>Posez votre question en français, wolof ou pulaar.</small>
+          </div>
+          <div id="apiStatus" style="font-size:.7rem;color:#22c55e;">API: ...</div>
+        </header>
+
+        <!-- Messages -->
+        <div id="chatMessages" class="chat-messages" aria-live="polite">
+          <!-- le JS viendra mettre les messages ici -->
+        </div>
+
+        <!-- Suggestions -->
+        <div class="suggestions">
+          <p class="suggestions-title">Questions suggérées :</p>
+          <div class="suggestions-list">
+            <button type="button" class="suggestion-btn" onclick="sendSuggestion('Comment traiter le mildiou sur la tomate ?')">
+              Comment traiter le mildiou sur la tomate ?
+            </button>
+            <button type="button" class="suggestion-btn" onclick="sendSuggestion('Quels sont les symptômes de l\\'oïdium ?')">
+              Quels sont les symptômes de l’oïdium ?
+            </button>
+            <button type="button" class="suggestion-btn" onclick="sendSuggestion('Comment prévenir les maladies fongiques ?')">
+              Comment prévenir les maladies fongiques ?
+            </button>
+            <button type="button" class="suggestion-btn" onclick="sendSuggestion('Quels traitements biologiques sont disponibles ?')">
+              Quels traitements biologiques sont disponibles ?
+            </button>
+          </div>
+        </div>
+
+        <!-- Input -->
+        <div class="chat-input-bar">
+          <label for="chatInput" class="sr-only">Votre message</label>
+          <input
+            type="text"
+            id="chatInput"
+            placeholder="Écrivez votre question ici..."
+            onkeypress="handleKeyPress(event)"
+            autocomplete="off"
+          />
+          <button type="button" class="btn-primary" onclick="sendMessage()">Envoyer</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container" style="text-align:center;padding:1rem 0 1.5rem;color:#94a3b8;font-size:.75rem;">
+      &copy; 2025 AgriDetect — API v1.0.0 | Projet de Fin d'Étude
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+</html>

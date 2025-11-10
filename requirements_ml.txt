@@ -1,0 +1,34 @@
+# Requirements pour l'entraînement du modèle AgriDetect
+
+# Deep Learning
+tensorflow>=2.14.0
+keras>=2.14.0
+
+# Traitement d'images
+Pillow>=10.0.0
+opencv-python>=4.8.0
+
+# Data Science
+numpy>=1.24.0
+pandas>=2.0.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Augmentation de données (optionnel)
+imgaug>=0.4.0
+albumentations>=1.3.0
+
+# Utilitaires
+tqdm>=4.65.0
+scikit-learn>=1.3.0
+
+# Téléchargement de datasets (optionnel)
+kaggle>=1.5.16
+gdown>=4.7.0
+
+# Visualisation (optionnel)
+tensorboard>=2.14.0
+plotly>=5.15.0
+
+# GPU Support (optionnel - pour Nvidia CUDA)
+# tensorflow-gpu>=2.14.0

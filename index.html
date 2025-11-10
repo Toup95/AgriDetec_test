@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgriDetect - Détection des Maladies</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #f5f9ff 0%, #e7f3ff 45%, #ffffff 100%);
+      display: flex;
+      flex-direction: column;
+    }
+    .navbar {
+      background: #0f766e;
+      color: #fff;
+    }
+    .navbar .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: .6rem 1rem;
+    }
+    .navbar .nav-menu {
+      display: flex;
+      gap: 1rem;
+      list-style: none;
+    }
+    .navbar .nav-menu a {
+      color: #e2e8f0;
+      text-decoration: none;
+      font-weight: 500;
+      padding-bottom: .2rem;
+    }
+    .navbar .nav-menu a.active {
+      color: #fff;
+      border-bottom: 2px solid rgba(255,255,255,.6);
+    }
+
+    .main-shell {
+      flex: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 1.5rem auto 1.5rem;
+      padding: 0 1rem;
+    }
+    .hero-card {
+      background: #fff;
+      border-radius: 1.25rem;
+      padding: 1.25rem 1.25rem 1.5rem;
+      border: 1px solid rgba(148,163,184,.12);
+      box-shadow: 0 12px 40px rgba(15,23,42,.04);
+    }
+    .upload-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .upload-box {
+      border: 2px dashed rgba(15,118,110,.3);
+      background: #ecfeff;
+      border-radius: 1rem;
+      padding: 1.25rem;
+      text-align: center;
+      transition: .15s ease-in-out;
+    }
+    .upload-icon {
+      font-size: 2.3rem;
+      margin-bottom: .5rem;
+    }
+    /* input visible pour laisser le choix caméra / galerie */
+    .file-input-visible {
+      margin-top: .5rem;
+    }
+    .image-preview {
+      background: #fff;
+      border-radius: 1rem;
+      border: 1px solid rgba(148,163,184,.2);
+      padding: 1rem;
+      text-align: center;
+    }
+    .image-preview img {
+      max-width: 100%;
+      border-radius: .75rem;
+      margin-bottom: .75rem;
+    }
+    .preview-actions {
+      display: flex;
+      gap: .5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: #0f766e;
+      color: #fff;
+      border: none;
+      border-radius: .75rem;
+      padding: .4rem 1.1rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .btn-primary:hover { background: #115e57; }
+    .btn-secondary {
+      background: #fff;
+      color: #0f766e;
+      border: 1px solid rgba(15,118,110,.35);
+      border-radius: .75rem;
+      padding: .4rem 1.1rem;
+      cursor: pointer;
+    }
+    .loading-section,
+    .results-section,
+    .error-section {
+      background: #fff;
+      border-radius: 1.25rem;
+      border: 1px solid rgba(148,163,184,.15);
+      padding: 1rem 1.25rem;
+    }
+    .result-card {
+      background: #f8fafc;
+      border-radius: .9rem;
+      margin-bottom: .6rem;
+      border: 1px solid rgba(148,163,184,.07);
+    }
+    .result-header {
+      padding: .55rem .75rem .35rem;
+      border-bottom: 1px solid rgba(148,163,184,.12);
+    }
+    .result-content {
+      padding: .6rem .75rem .75rem;
+    }
+    .result-item {
+      display: flex;
+      justify-content: space-between;
+      gap: .5rem;
+      margin-bottom: .4rem;
+    }
+    .result-item .label {
+      color: #475569;
+    }
+    footer {
+      text-align:center;
+      padding: 1rem 0 1.5rem;
+      color: #94a3b8;
+      font-size: .75rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="logo">
+        <h1>🌾 AgriDetect</h1>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="index.html" class="active">Détection</a></li>
+        <li><a href="chat.html">Chat Bot</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- CONTENU -->
+  <main class="main-shell">
+    <section class="hero-card">
+      <h2>Détectez les maladies de vos cultures</h2>
+      <p>Importez ou prenez une photo de la feuille. L’API vous retournera la maladie probable.</p>
+
+      <div class="upload-section">
+        <!-- Zone d’upload -->
+        <div class="upload-box" id="uploadBox">
+          <div class="upload-content">
+            <div class="upload-icon" aria-hidden="true">📸</div>
+            <h3>Choisissez ou prenez une photo</h3>
+            <p>Formats acceptés : JPG, PNG, JPEG</p>
+
+            <!-- input VISIBLE pour laisser le système proposer Caméra/Galerie -->
+            <input
+              type="file"
+              id="imageInput"
+              accept="image/*"
+              capture="environment"
+              class="file-input-visible"
+            >
+            <small style="display:block;margin-top:8px;color:#6b7280">
+              Sur certains téléphones, le navigateur peut montrer seulement la galerie.
+            </small>
+          </div>
+        </div>
+
+        <!-- Aperçu -->
+        <div class="image-preview" id="imagePreview" style="display:none;">
+          <img id="previewImg" src="" alt="Aperçu de l'image sélectionnée">
+          <div class="preview-actions">
+            <button class="btn-secondary" type="button" onclick="resetUpload()">Changer d'image</button>
+            <button class="btn-primary" type="button" onclick="analyzeImage()">Analyser</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chargement -->
+      <section class="loading-section" id="loadingSection" style="display:none;">
+        <div class="loader" aria-hidden="true"></div>
+        <p>Analyse en cours...</p>
+      </section>
+
+      <!-- Résultats -->
+      <section class="results-section" id="resultsSection" style="display:none;">
+        <h2>Résultats de l'Analyse</h2>
+
+        <div class="result-card">
+          <div class="result-header">
+            <h3>🔬 Diagnostic</h3>
+          </div>
+          <div class="result-content">
+            <div class="result-item">
+              <span class="label">Maladie détectée :</span>
+              <span class="value" id="diseaseName">-</span>
+            </div>
+            <div class="result-item">
+              <span class="label">Confiance :</span>
+              <span class="value confidence" id="confidence">-</span>
+            </div>
+            <div class="result-item">
+              <span class="label">Sévérité :</span>
+              <span class="value severity" id="severity">-</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-card">
+          <div class="result-header">
+            <h3>💊 Traitements Recommandés</h3>
+          </div>
+          <div class="result-content" id="treatments"></div>
+        </div>
+
+        <div class="result-card">
+          <div class="result-header">
+            <h3>🛡️ Conseils de Prévention</h3>
+          </div>
+          <div class="result-content">
+            <ul id="preventionTips"></ul>
+          </div>
+        </div>
+
+        <button class="btn-primary" type="button" onclick="resetUpload()">Nouvelle Analyse</button>
+      </section>
+
+      <!-- Erreurs -->
+      <section class="error-section" id="errorSection" style="display:none;">
+        <div class="error-message" role="alert">
+          <h3>⚠️ Erreur</h3>
+          <p id="errorMessage"></p>
+          <button class="btn-secondary" type="button" onclick="resetUpload()">Réessayer</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    &copy; 2025 AgriDetect — API v1.0.0 | Projet de Fin d'Étude
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
+

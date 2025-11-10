@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriDetect - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <h1>🌾 AgriDetect</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Détection</a></li>
+                <li><a href="chat.html">Chat Bot</a></li>
+                <li><a href="dashboard.html" class="active">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="hero">
+            <h2>📊 Tableau de Bord AgriDetect</h2>
+            <p>Statistiques et maladies courantes détectées</p>
+        </section>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🔍</div>
+                <div class="stat-content">
+                    <h3 id="totalDetections">---</h3>
+                    <p>Détections Totales</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <h3 id="activeUsers">---</h3>
+                    <p>Utilisateurs Actifs</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🦠</div>
+                <div class="stat-content">
+                    <h3 id="diseaseTypes">---</h3>
+                    <p>Types de Maladies</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-content">
+                    <h3 id="successRate">---</h3>
+                    <p>Taux de Réussite</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-content">
+            <div class="dashboard-card">
+                <h3>🌾 Maladies Courantes</h3>
+                <div class="diseases-list" id="diseasesList">
+                    <div class="loading-small">Chargement...</div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>📈 Maladies les Plus Détectées</h3>
+                <div class="chart-container" id="topDiseases">
+                    <div class="loading-small">Chargement...</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="info-section">
+            <div class="info-card">
+                <h3>ℹ️ À Propos d'AgriDetect</h3>
+                <p>AgriDetect est une plateforme d'intelligence artificielle dédiée à la détection et au diagnostic des maladies des cultures. Notre système utilise des modèles de deep learning avancés pour identifier avec précision les pathologies végétales.</p>
+                
+                <h4>Fonctionnalités principales :</h4>
+                <ul>
+                    <li>✅ Détection automatique des maladies par analyse d'images</li>
+                    <li>✅ Recommandations de traitements personnalisées</li>
+                    <li>✅ Chatbot intelligent pour assistance en temps réel</li>
+                    <li>✅ Base de données complète des maladies agricoles</li>
+                    <li>✅ Conseils de prévention et bonnes pratiques</li>
+                </ul>
+
+                <h4>Technologies utilisées :</h4>
+                <ul>
+                    <li>🔹 Backend : FastAPI (Python)</li>
+                    <li>🔹 Base de données : PostgreSQL</li>
+                    <li>🔹 Cache : Redis</li>
+                    <li>🔹 IA : TensorFlow/PyTorch</li>
+                    <li>🔹 Conteneurisation : Docker</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 AgriDetect - API v1.0.0 | Projet de Fin d'Étude</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+    <script>
+        // Load dashboard data on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            loadDashboardStats();
+            loadCommonDiseases();
+        });
+    </script>
+</body>
+</html>
