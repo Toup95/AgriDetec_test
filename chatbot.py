@@ -432,29 +432,50 @@ class MultilingualAgriChatbot:
         }
 
 
-# ---------------------------------------------------------------------
-# 🟢 Fonction EXACTEMENT compatible avec ton main.py
-# ---------------------------------------------------------------------
+# Singleton du chatbot
+_CHATBOT_INSTANCE: Optional[MultilingualAgriChatbot] = None
+
+def _get_chatbot(language: str = "fr") -> MultilingualAgriChatbot:
+    """Retourne une instance singleton du chatbot"""
+    global _CHATBOT_INSTANCE
+    if _CHATBOT_INSTANCE is None:
+        _CHATBOT_INSTANCE = MultilingualAgriChatbot(default_lang=language)
+    return _CHATBOT_INSTANCE
+
+# ==============================================
+# 🟢 Fonction compatible avec ton main.py
+# ==============================================
 def generate_chat_response(
-    bot: Optional[MultilingualAgriChatbot],
+    session_id: str,
     message: str,
-    session_id: str = "default",
     language: str = "fr",
     extra_context: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+) -> str:
     """
-    Ton main.py appelle cette fonction comme ça :
-        generate_chat_response(self._bot, message=..., session_id=..., language=..., extra_context=...)
-    donc on garde ce prototype.
+    Fonction simple compatible avec main.py.
+    
+    Args:
+        session_id: ID de la session de chat
+        message: Message de l'utilisateur
+        language: Langue (fr, en, wo)
+        extra_context: Contexte additionnel
+    
+    Returns:
+        str: La réponse du chatbot
     """
-    if bot is None:
-        bot = MultilingualAgriChatbot(default_lang=language)
-    return bot.generate_response(
-        message=message,
-        session_id=session_id,
-        language=language,
-        extra_context=extra_context,
-    )
+    try:
+        bot = _get_chatbot(language)
+        response_dict = bot.generate_response(
+            message=message,
+            session_id=session_id,
+            language=language,
+            extra_context=extra_context,
+        )
+        # Retourne juste le texte de réponse
+        return response_dict.get("response", "Erreur du chatbot")
+    except Exception as e:
+        log.error(f"Erreur generate_chat_response: {e}", exc_info=True)
+        return f"❌ Erreur: {str(e)}"
 
 
 if __name__ == "__main__":
