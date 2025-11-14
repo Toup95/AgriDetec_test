@@ -17,8 +17,8 @@ DISEASE_INFO: Dict[str, Dict[str, Any]] = {
         "crop": "Poivron / Piment",
         "severity": "Modérée",
         "treatments": [
-            "Pulvériser un produit à base de cuivre (respecter l’étiquette)",
-            "Éviter l’arrosage par aspersion",
+            "Pulvériser un produit à base de cuivre (respecter l'étiquette)",
+            "Éviter l'arrosage par aspersion",
             "Supprimer les feuilles très atteintes"
         ],
         "prevention": [
@@ -47,8 +47,8 @@ DISEASE_INFO: Dict[str, Dict[str, Any]] = {
         ],
         "prevention": [
             "Rotation 2 à 3 ans",
-            "Éviter excès d’azote",
-            "Espacer les plants pour l’aération"
+            "Éviter excès d'azote",
+            "Espacer les plants pour l'aération"
         ],
         "symptoms": "Taches brunes avec cercles concentriques sur les feuilles âgées."
     },
@@ -62,10 +62,10 @@ DISEASE_INFO: Dict[str, Dict[str, Any]] = {
         ],
         "prevention": [
             "Arroser au pied",
-            "Éviter l’humidité prolongée sur le feuillage",
-            "Utiliser des variétés tolérantes quand c’est possible"
+            "Éviter l'humidité prolongée sur le feuillage",
+            "Utiliser des variétés tolérantes quand c'est possible"
         ],
-        "symptoms": "Taches brun-gris s’élargissant vite, parfois duvet blanc au revers."
+        "symptoms": "Taches brun-gris s'élargissant vite, parfois duvet blanc au revers."
     },
     "potato_healthy": {
         "name": "Pomme de terre saine",
@@ -82,12 +82,12 @@ DISEASE_INFO: Dict[str, Dict[str, Any]] = {
         "severity": "Modérée",
         "treatments": [
             "Traitement cuivre (hydroxyde ou oxichlorure)",
-            "Supprimer feuilles atteintes pour limiter la source d’inoculum"
+            "Supprimer feuilles atteintes pour limiter la source d'inoculum"
         ],
         "prevention": [
             "Semences certifiées",
             "Désinfecter les outils",
-            "Éviter les éclaboussures d’eau"
+            "Éviter les éclaboussures d'eau"
         ],
         "symptoms": "Petites taches sombres, parfois huileuses, sur feuilles et fruits."
     },
@@ -97,7 +97,7 @@ DISEASE_INFO: Dict[str, Dict[str, Any]] = {
         "severity": "Modérée",
         "treatments": [
             "Traitement cuivre",
-            "Améliorer l’aération du feuillage"
+            "Améliorer l'aération du feuillage"
         ],
         "prevention": [
             "Rotation",
@@ -111,15 +111,15 @@ DISEASE_INFO: Dict[str, Dict[str, Any]] = {
         "crop": "Tomate",
         "severity": "Élevée",
         "treatments": [
-            "Fongicide systémique (suivre l’étiquette)",
+            "Fongicide systémique (suivre l'étiquette)",
             "Couper les parties très atteintes"
         ],
         "prevention": [
             "Arroser au pied",
             "Espacer les plants",
-            "Éviter l’humidité prolongée"
+            "Éviter l'humidité prolongée"
         ],
-        "symptoms": "Taches brun-gris qui s’élargissent vite, parfois duvet blanc au revers."
+        "symptoms": "Taches brun-gris qui s'élargissent vite, parfois duvet blanc au revers."
     },
     "tomato_leaf_mold": {
         "name": "Moisissure des feuilles de la tomate",
@@ -173,7 +173,7 @@ DISEASE_INFO: Dict[str, Dict[str, Any]] = {
         ],
         "prevention": [
             "Aérer",
-            "Éviter excès d’azote"
+            "Éviter excès d'azote"
         ],
         "symptoms": "Taches rondes avec cercles concentriques."
     },
@@ -193,7 +193,7 @@ DISEASE_INFO: Dict[str, Dict[str, Any]] = {
         "symptoms": "Feuilles marbrées vert clair/vert foncé, déformation éventuelle."
     },
     "tomato_yellow_leaf_curl_virus": {
-        "name": "Virus de l’enroulement jaune (tomate)",
+        "name": "Virus de l'enroulement jaune (tomate)",
         "crop": "Tomate",
         "severity": "Élevée",
         "treatments": [
@@ -212,138 +212,152 @@ DISEASE_INFO: Dict[str, Dict[str, Any]] = {
         "crop": "Tomate",
         "severity": "Aucune",
         "treatments": [],
-        "prevention": ["Arroser au pied", "Surveillance régulière"]
+        "prevention": ["Surveillance régulière", "Bonne irrigation"]
     },
 }
 
-# petit index texte → clé
-_TEXT_INDEX: List[Tuple[str, str]] = []
-for key, data in DISEASE_INFO.items():
-    _TEXT_INDEX.append((data.get("name", "").lower(), key))
-    _TEXT_INDEX.append((data.get("crop", "").lower(), key))
-
 
 class MultilingualAgriChatbot:
+    """Chatbot agricole multilingue pour AgriDetect"""
+
     def __init__(self, default_lang: str = "fr"):
         self.default_lang = default_lang
+        self._build_index()
 
-    # ---------- utils ----------
+    def _build_index(self):
+        """Construit un index texte pour reconnaissance rapide"""
+        self._TEXT_INDEX = []
+        for key, info in DISEASE_INFO.items():
+            name = info.get("name", "")
+            crop = info.get("crop", "")
+            if name:
+                self._TEXT_INDEX.append((name.lower(), key))
+            if crop:
+                self._TEXT_INDEX.append((crop.lower(), key))
+
     def _normalize(self, text: str) -> str:
-        text = text.lower().strip()
-        repl = {
-            "é": "e", "è": "e", "ê": "e", "à": "a", "ù": "u",
-            "ç": "c", "ô": "o", "î": "i", "ï": "i"
-        }
-        for a, b in repl.items():
-            text = text.replace(a, b)
-        return text
+        """Normalise un texte pour recherche"""
+        return text.lower().strip()
 
     def _find_disease_key(self, msg_norm: str) -> Optional[str]:
+        """Trouve la clé maladie dans le message normalisé"""
+        # 1) Essai : correspondance crop + disease
         disease_fr = {
-            "mildiou": ["late_blight"],
-            "brulure precoce": ["early_blight"],
-            "brulure": ["early_blight"],
-            "tache bacterienne": ["bacterial_spot", "bacterial"],
-            "septoriose": ["septoria_leaf_spot"],
-            "acariens": ["spider_mites"],
-            "araignees rouges": ["spider_mites"],
-            "mosaique": ["mosaic_virus"],
-            "mosaïque": ["mosaic_virus"],
-            "enroulement jaune": ["yellow_leaf_curl_virus"],
-        }
-        cultures = {
-            "tomate": ["tomato"],
-            "poivron": ["pepper"],
-            "piment": ["pepper"],
-            "pomme de terre": ["potato"],
-            "patate": ["potato"],
+            "tache bactérienne": ["pepper_bacterial_spot", "tomato_bacterial_spot"],
+            "mildiou": ["potato_late_blight", "tomato_late_blight"],
+            "brûlure précoce": ["potato_early_blight", "tomato_early_blight"],
+            "moisissure": ["tomato_leaf_mold"],
+            "septoriose": ["tomato_septoria_leaf_spot"],
+            "acariens": ["tomato_spider_mites"],
+            "tache cible": ["tomato_target_spot"],
+            "virus mosaïque": ["tomato_mosaic_virus"],
+            "enroulement jaune": ["tomato_yellow_leaf_curl_virus"],
         }
 
-        # 1) essayer couple
-        for c_fr, c_keys in cultures.items():
+        crop_fr = {
+            "tomate": ["tomato_"],
+            "pomme de terre": ["potato_"],
+            "poivron": ["pepper_"],
+            "piment": ["pepper_"],
+        }
+
+        # Tentative 1 : correspondance directe crop + disease
+        for c_fr, c_keys in crop_fr.items():
             if c_fr in msg_norm:
                 for d_fr, d_keys in disease_fr.items():
                     if d_fr in msg_norm:
                         for ck in c_keys:
                             for dk in d_keys:
-                                candidate = f"{ck}_{dk}"
+                                candidate = f"{ck}{dk.replace('_', '')}"
                                 for real_key in DISEASE_INFO.keys():
-                                    if candidate in real_key:
+                                    if ck in real_key and dk.replace("_", "") in real_key:
                                         return real_key
 
-        # 2) matching texte plus souple
-        for text, key in _TEXT_INDEX:
+        # 2) Tentative 2 : matching texte plus souple
+        for text, key in self._TEXT_INDEX:
             parts = text.split()
             matches = sum(1 for p in parts if p in msg_norm)
             if matches >= min(2, len(parts)):
                 return key
 
-        # 3) dernier recours
-        for text, key in _TEXT_INDEX:
+        # 3) Tentative 3 : matching simple
+        for text, key in self._TEXT_INDEX:
             if text in msg_norm:
                 return key
 
         return None
 
     def _general_reply(self, msg_norm: str) -> str:
-        # 🔹 nouveau : prévention maladies fongiques / champignons
-        if (
-            "maladie fongique" in msg_norm
-            or "maladies fongiques" in msg_norm
-            or "fongique" in msg_norm
-            or "champignon" in msg_norm
-            or "champignons" in msg_norm
-        ):
+        """Génère une réponse générale si pas de maladie trouvée"""
+        # Maladie fongique
+        if any(word in msg_norm for word in ["maladie fongique", "fongique", "champignon", "champignons"]):
             return (
                 "Pour prévenir les maladies fongiques 🌿 :\n"
                 "1. Arroser au pied (pas sur les feuilles)\n"
                 "2. Espacer les plants pour que ça sèche vite\n"
                 "3. Pailler le sol pour éviter les éclaboussures\n"
                 "4. Enlever les feuilles touchées et les sortir de la parcelle\n"
-                "5. Faire une rotation des cultures (éviter tomate → tomate au même endroit)\n"
+                "5. Faire une rotation des cultures\n"
                 "6. En saison humide : surveiller souvent pour traiter tôt (cuivre/soufre si autorisé)."
             )
 
-        if "traitement biologique" in msg_norm or "traitements biologiques" in msg_norm:
+        # Traitement biologique
+        if any(word in msg_norm for word in ["traitement biologique", "traitements biologiques", "bio"]):
             return (
                 "Traitements biologiques possibles 🌱 :\n"
-                "- savon noir dilué (insectes, acariens)\n"
-                "- huile de Neem (le soir, éviter fleurs ouvertes)\n"
-                "- décoction d’ail ou de neem en prévention\n"
-                "- cuivre/bouillie bordelaise = autorisé en bio dans certains pays (voir règlement local)\n"
-                "- toujours traiter le matin ou le soir."
+                "- Savon noir dilué (insectes, acariens)\n"
+                "- Huile de Neem (le soir, éviter fleurs ouvertes)\n"
+                "- Décoction d'ail ou de neem en prévention\n"
+                "- Cuivre/bouillie bordelaise (autorité locales)\n"
+                "- Toujours traiter le matin ou le soir."
             )
-        if "arrosage" in msg_norm or "arroser" in msg_norm:
+
+        # Arrosage
+        if any(word in msg_norm for word in ["arrosage", "arroser"]):
             return (
-                "Bonnes pratiques d’arrosage :\n"
+                "Bonnes pratiques d'arrosage 💧:\n"
                 "1. Arroser au pied, pas sur les feuilles\n"
-                "2. Le matin (ou le soir s’il fait très chaud)\n"
+                "2. Le matin (ou le soir s'il fait très chaud)\n"
                 "3. Garder le sol humide mais non détrempé\n"
-                "4. Pailler pour réduire l’évaporation ✅"
+                "4. Pailler pour réduire l'évaporation ✅"
             )
-        if "prevention" in msg_norm or "prévention" in msg_norm or "eviter maladie" in msg_norm:
+
+        # Prévention générale
+        if any(word in msg_norm for word in ["prevention", "prévention", "eviter maladie", "éviter"]):
             return (
-                "Prévention générale des maladies :\n"
-                "- utiliser des semences/plants sains\n"
-                "- espacer les plants pour l’aération\n"
-                "- arroser au pied\n"
-                "- retirer les feuilles malades\n"
-                "- pratiquer la rotation des cultures"
+                "Prévention générale des maladies 🛡️ :\n"
+                "- Utiliser des semences/plants sains\n"
+                "- Espacer les plants pour l'aération\n"
+                "- Arroser au pied\n"
+                "- Retirer les feuilles malades\n"
+                "- Pratiquer la rotation des cultures"
             )
+
+        # Tomate + maladie
         if "tomate" in msg_norm and "maladie" in msg_norm:
             return (
-                "Maladies courantes de la tomate : mildiou, tache bactérienne, brûlure précoce, septoriose, virus de la mosaïque, enroulement jaune.\n"
+                "Maladies courantes de la tomate 🍅 :\n"
+                "- Mildiou\n"
+                "- Tache bactérienne\n"
+                "- Brûlure précoce\n"
+                "- Septoriose\n"
+                "- Virus de la mosaïque\n"
+                "- Virus de l'enroulement jaune\n"
                 "Demande par ex. « traitement mildiou tomate » 👍"
             )
+
+        # Réponse par défaut
         return (
-            "Je n’ai pas trouvé exactement la maladie dans ton message 😅.\n"
+            "Je n'ai pas trouvé exactement la maladie dans ton message 😅.\n"
             "Tu peux écrire :\n"
             "- « traitement mildiou tomate »\n"
             "- « prévention tache bactérienne poivron »\n"
-            "- « symptômes brûlure précoce pomme de terre »"
+            "- « symptômes brûlure précoce pomme de terre »\n"
+            "- « bonnes pratiques d'arrosage »"
         )
 
     def _format_disease_answer(self, key: str, msg_norm: str) -> str:
+        """Formate la réponse pour une maladie spécifique"""
         data = DISEASE_INFO.get(key, {})
         title = data.get("name", key)
         severity = data.get("severity", "Inconnue")
@@ -351,40 +365,41 @@ class MultilingualAgriChatbot:
         prevention = data.get("prevention", [])
         symptoms = data.get("symptoms", "")
 
-        # traitement ?
-        if "traitement" in msg_norm or "soigner" in msg_norm:
+        # Traitement ?
+        if any(word in msg_norm for word in ["traitement", "soigner", "traiter"]):
             if treatments:
                 lines = [f"Traitement pour **{title}** :"]
                 for t in treatments:
-                    lines.append(f"- {t}")
-                lines.append(f"Sévérité : **{severity}**.")
+                    lines.append(f"  • {t}")
+                lines.append(f"\nSévérité : **{severity}**")
                 return "\n".join(lines)
             else:
                 return (
-                    f"Pour **{title}**, pas de traitement spécifique enregistré. "
-                    "Supprime les parties atteintes et améliore l’aération."
+                    f"Pour **{title}**, pas de traitement spécifique enregistré.\n"
+                    "Supprime les parties atteintes et améliore l'aération."
                 )
 
-        # prévention ?
-        if "prevention" in msg_norm or "prévention" in msg_norm or "eviter" in msg_norm:
+        # Prévention ?
+        if any(word in msg_norm for word in ["prevention", "prévention", "eviter", "éviter"]):
             if prevention:
                 lines = [f"Prévention pour **{title}** :"]
                 for p in prevention:
-                    lines.append(f"- {p}")
+                    lines.append(f"  • {p}")
                 return "\n".join(lines)
             else:
                 return (
-                    f"Prévention générale pour **{title}** : rotation, arrosage au pied, enlever les feuilles malades."
+                    f"Prévention générale pour **{title}** :\n"
+                    "Rotation, arrosage au pied, enlever les feuilles malades."
                 )
 
-        # symptômes ?
-        if "symptome" in msg_norm or "symptômes" in msg_norm or "reconnaitre" in msg_norm:
+        # Symptômes ?
+        if any(word in msg_norm for word in ["symptome", "symptômes", "reconnaitre", "reconnaître"]):
             if symptoms:
-                return f"Symptômes de **{title}** : {symptoms}"
+                return f"Symptômes de **{title}** 🔍 :\n{symptoms}"
             else:
-                return f"Les symptômes de **{title}** sont taches sur feuilles et affaiblissement de la plante."
+                return f"Symptômes de **{title}** : taches sur feuilles et affaiblissement de la plante."
 
-        # sinon fiche courte
+        # Fiche courte par défaut
         parts = [
             f"📋 Maladie : **{title}**",
             f"Sévérité : {severity}",
@@ -392,10 +407,25 @@ class MultilingualAgriChatbot:
         if symptoms:
             parts.append(f"Symptômes : {symptoms}")
         if treatments:
-            parts.append("Traitements possibles : " + "; ".join(treatments))
+            parts.append("Traitements : " + "; ".join(treatments[:2]))
         if prevention:
-            parts.append("Prévention : " + "; ".join(prevention))
+            parts.append("Prévention : " + "; ".join(prevention[:2]))
         return "\n".join(parts)
+
+    def reply(
+        self,
+        message: str,
+        session_id: str = "default",
+        language: Optional[str] = None,
+        context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Méthode compatible avec ChatbotManager"""
+        return self.generate_response(
+            message=message,
+            session_id=session_id,
+            language=language or self.default_lang,
+            extra_context=context,
+        )
 
     def generate_response(
         self,
@@ -404,6 +434,7 @@ class MultilingualAgriChatbot:
         language: Optional[str] = "fr",
         extra_context: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
+        """Génère une réponse complète au chatbot"""
         msg_norm = self._normalize(message)
         disease_key = self._find_disease_key(msg_norm)
 
@@ -421,7 +452,7 @@ class MultilingualAgriChatbot:
             "suggestions": [
                 "traitement mildiou tomate",
                 "prévention tache bactérienne poivron",
-                "bonnes pratiques d’arrosage",
+                "bonnes pratiques d'arrosage",
             ],
             "context": {
                 "session_id": session_id,
@@ -432,63 +463,92 @@ class MultilingualAgriChatbot:
         }
 
 
-# Singleton du chatbot
-_CHATBOT_INSTANCE: Optional[MultilingualAgriChatbot] = None
+class ChatbotManager:
+    """🟢 Classe requise par main.py pour gérer le chatbot"""
 
-def _get_chatbot(language: str = "fr") -> MultilingualAgriChatbot:
-    """Retourne une instance singleton du chatbot"""
-    global _CHATBOT_INSTANCE
-    if _CHATBOT_INSTANCE is None:
-        _CHATBOT_INSTANCE = MultilingualAgriChatbot(default_lang=language)
-    return _CHATBOT_INSTANCE
+    def __init__(self):
+        try:
+            self._bot = MultilingualAgriChatbot(default_lang="fr")
+            self._available = True
+            log.info("✅ ChatbotManager initialisé avec succès")
+        except Exception as e:
+            log.error(f"❌ Erreur initialisation ChatbotManager: {e}")
+            self._bot = None
+            self._available = False
 
-# ==============================================
-# 🟢 Fonction compatible avec ton main.py
-# ==============================================
-def generate_chat_response(
-    session_id: str,
-    message: str,
-    language: str = "fr",
-    extra_context: Optional[Dict[str, Any]] = None,
-) -> str:
-    """
-    Fonction simple compatible avec main.py.
-    
-    Args:
-        session_id: ID de la session de chat
-        message: Message de l'utilisateur
-        language: Langue (fr, en, wo)
-        extra_context: Contexte additionnel
-    
-    Returns:
-        str: La réponse du chatbot
-    """
-    try:
-        bot = _get_chatbot(language)
-        response_dict = bot.generate_response(
+    def is_available(self) -> bool:
+        """Vérifie si le chatbot est disponible"""
+        return self._available and self._bot is not None
+
+    def reply(
+        self,
+        message: str,
+        session_id: str = "default",
+        language: str = "fr",
+        context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Génère une réponse du chatbot"""
+        if not self.is_available():
+            log.warning("⚠️ Chatbot non disponible")
+            return {
+                "response": "Le chatbot n'est pas disponible pour le moment.",
+                "language": language,
+                "intent": "error",
+                "suggestions": [],
+                "context": {"session_id": session_id},
+                "timestamp": datetime.now().isoformat(),
+                "success": False,
+            }
+
+        return self._bot.reply(
             message=message,
             session_id=session_id,
             language=language,
-            extra_context=extra_context,
+            context=context,
         )
-        # Retourne juste le texte de réponse
-        return response_dict.get("response", "Erreur du chatbot")
-    except Exception as e:
-        log.error(f"Erreur generate_chat_response: {e}", exc_info=True)
-        return f"❌ Erreur: {str(e)}"
+
+
+# =====================================================================
+# 🟢 Fonction EXACTEMENT compatible avec ton main.py
+# =====================================================================
+def generate_chat_response(
+    bot: Optional[MultilingualAgriChatbot],
+    message: str,
+    session_id: str = "default",
+    language: str = "fr",
+    extra_context: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """
+    Compatible avec l'appel main.py :
+        generate_chat_response(self._bot, message=..., session_id=..., language=..., extra_context=...)
+    """
+    if bot is None:
+        bot = MultilingualAgriChatbot(default_lang=language)
+    return bot.generate_response(
+        message=message,
+        session_id=session_id,
+        language=language,
+        extra_context=extra_context,
+    )
 
 
 if __name__ == "__main__":
-    b = MultilingualAgriChatbot()
+    # Test du chatbot
+    print("🤖 Tests du ChatbotManager\n")
+    manager = ChatbotManager()
+
     tests = [
         "Comment prévenir les maladies fongiques ?",
         "Traitement mildiou tomate",
         "Prévention tache bactérienne poivron",
         "Symptômes brûlure précoce pomme de terre",
         "bonnes pratiques d'arrosage",
+        "Tomate saine ?",
     ]
-    for t in tests:
-        print(">", t)
-        r = b.generate_response(t)
-        print(r["response"])
+
+    for test_msg in tests:
+        print(f"❓ Entrée: {test_msg}")
+        response = manager.reply(test_msg, language="fr")
+        print(f"✅ Réponse: {response['response']}")
+        print(f"   Intent: {response['intent']}")
         print()

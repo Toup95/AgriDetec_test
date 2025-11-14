@@ -1,0 +1,66 @@
+# Python
+venv/
+env/
+ENV/
+.venv
+__pycache__/
+*.egg-info/
+dist/
+build/
+*.pyc
+*.so
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.sublime-project
+.sublime-workspace
+*.iml
+
+# Node
+node_modules/
+npm-debug.log
+package-lock.json
+
+# Environnement
+.env
+.env.local
+.env.*.local
+
+# Logs & Fichiers temporaires
+logs/
+*.log
+*.tmp
+temp/
+.tmp/
+
+# Uploads & Données
+uploads/
+*.db
+*.sqlite
+*.sqlite3
+
+# Modèles ML
+models/*.h5
+models/*.pkl
+models/*.pb
+
+# Docker
+postgres_data/
+redis_data/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Autres
+.cache/
+.pytest_cache/
+.mypy_cache/
+*.bak
+*.backup
+*~

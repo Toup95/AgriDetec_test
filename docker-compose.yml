@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  agridetect:
+    build: .
+    container_name: agridetect-app
+    ports:
+      - "8000:8000"
+    environment:
+      - AGRIDETECT_MODEL_PATH=./models/agridetect_model_20251107_042206
+      - ENVIRONMENT=development
+      - DEBUG=True
+    volumes:
+      - ./models:/app/models
+    restart: unless-stopped
