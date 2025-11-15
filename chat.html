@@ -6,7 +6,7 @@
   <title>AgriDetect - Chatbot Agricole</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* Tu peux mettre ça dans style.css si tu préfères */
+    /* Tu peux déplacer ces styles dans style.css si tu préfères */
 
     body {
       min-height: 100vh;
@@ -26,11 +26,6 @@
       color: #fff;
       border-bottom: 2px solid rgba(255,255,255,0.7);
     }
-    .nav-lang select {
-      border: none;
-      border-radius: .5rem;
-      padding: .25rem .5rem;
-    }
 
     .chat-page {
       flex: 1;
@@ -42,43 +37,9 @@
     }
 
     .chat-shell {
-      max-width: 1100px;
+      max-width: 900px;
       width: 100%;
       margin: 0 auto;
-      display: grid;
-      grid-template-columns: 280px minmax(0, 1fr);
-      gap: 1.5rem;
-      align-items: stretch;
-    }
-
-    /* panneau de gauche */
-    .chat-side {
-      background: #ffffffaa;
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(15, 118, 110, 0.08);
-      border-radius: 1.25rem;
-      padding: 1.25rem;
-      box-shadow: 0 10px 30px rgba(15, 118, 110, 0.05);
-      height: max-content;
-    }
-    .chat-side h3 {
-      margin-bottom: .75rem;
-    }
-    .chat-side p {
-      color: #475569;
-      font-size: .9rem;
-      line-height: 1.4;
-    }
-    .side-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: .25rem;
-      background: #ecfdf3;
-      color: #166534;
-      padding: .25rem .6rem;
-      border-radius: 999px;
-      font-size: .7rem;
-      margin-bottom: .75rem;
     }
 
     /* carte de chat */
@@ -110,7 +71,8 @@
       color: #94a3b8;
     }
     .status-dot {
-      width: 10px; height: 10px;
+      width: 10px; 
+      height: 10px;
       border-radius: 999px;
       background: #22c55e;
       display: inline-block;
@@ -246,7 +208,7 @@
 
     @media (max-width: 960px) {
       .chat-shell {
-        grid-template-columns: 1fr;
+        max-width: 100%;
       }
       .chat-card {
         max-height: none;
@@ -279,50 +241,34 @@
         <li><a href="chat.html" class="active">Chat Bot</a></li>
         <li><a href="dashboard.html">Dashboard</a></li>
       </ul>
-      <div class="nav-lang">
-        <label for="languageSelect" class="sr-only">Langue</label>
-        <select id="languageSelect" name="languageSelect">
-          <option value="auto">Langue auto</option>
-          <option value="fr" selected>Français</option>
-          <option value="wo">Wolof</option>
-          <option value="pu">Pulaar</option>
-        </select>
-      </div>
+      <!-- Sélecteur de langue supprimé (FR uniquement pour l'instant) -->
     </div>
   </nav>
 
   <!-- PAGE CHAT -->
   <main class="container chat-page">
     <div class="chat-shell">
-      <!-- Panneau gauche -->
-      <aside class="chat-side">
-        <span class="side-badge">v1.0 • multi-langues</span>
-        <h3>Conseils</h3>
-        <p>
-          Indiquez la culture <strong>(tomate, maïs, poivron...)</strong> et 1-2 symptômes
-          pour obtenir une fiche précise.
-        </p>
-        <p style="margin-top:1rem;font-size:.8rem;color:#94a3b8;">
-          Exemple : <br> <code>tomate feuilles jaunes enroulées</code><br>
-          ou <code>comment traiter le mildiou sur la tomate ?</code>
-        </p>
-      </aside>
-
-      <!-- Carte de chat -->
+      <!-- Carte de chat uniquement -->
       <section class="chat-card" aria-label="Chatbot agricole">
         <header class="chat-header">
           <div class="title">
             <h2 style="font-size:1rem;display:flex;align-items:center;gap:.3rem;">
               <span class="status-dot" aria-hidden="true"></span>Assistant AgriDetect
             </h2>
-            <small>Posez votre question en français, wolof ou pulaar.</small>
+            <small>Posez votre question en français.</small>
           </div>
           <div id="apiStatus" style="font-size:.7rem;color:#22c55e;">API: ...</div>
         </header>
 
-        <!-- Messages -->
+        <!-- Messages avec message d'accueil -->
         <div id="chatMessages" class="chat-messages" aria-live="polite">
-          <!-- le JS viendra mettre les messages ici -->
+          <div class="message bot-message">
+            <div class="message-avatar">A</div>
+            <div class="message-content">
+              Bonjour ! Je suis l'assistant AgriDetect. Comment puis-je vous aider avec vos cultures aujourd'hui ?
+              <span class="message-time">Maintenant</span>
+            </div>
+          </div>
         </div>
 
         <!-- Suggestions -->
@@ -332,8 +278,8 @@
             <button type="button" class="suggestion-btn" onclick="sendSuggestion('Comment traiter le mildiou sur la tomate ?')">
               Comment traiter le mildiou sur la tomate ?
             </button>
-            <button type="button" class="suggestion-btn" onclick='sendSuggestion("Quels sont les symptômes de l&#39;oïdium ?")'>
-              Quels sont les symptômes de l'oïdium ?
+            <button type="button" class="suggestion-btn" onclick="sendSuggestion('Quels sont les symptômes de l&apos;oïdium ?')">
+              Quels sont les symptômes de l’oïdium ?
             </button>
             <button type="button" class="suggestion-btn" onclick="sendSuggestion('Comment prévenir les maladies fongiques ?')">
               Comment prévenir les maladies fongiques ?
@@ -362,65 +308,10 @@
 
   <footer>
     <div class="container" style="text-align:center;padding:1rem 0 1.5rem;color:#94a3b8;font-size:.75rem;">
-      &copy; 2025 AgriDetect — API v1.0.0 | Projet de Fin d'Étude
+      &copy; 2025 AgriDetect — API v1.0.0 | Projet de fin d'année
     </div>
   </footer>
 
-  <script>
-    // Fonctions JavaScript pour le chat
-    function sendMessage() {
-      const input = document.getElementById('chatInput');
-      const message = input.value.trim();
-      
-      if (message) {
-        addMessage(message, 'user');
-        input.value = '';
-        
-        // Simuler une réponse du bot
-        setTimeout(() => {
-          addMessage("Je suis l'assistant AgriDetect. Pour le moment, je suis en cours de développement. Bientôt, je pourrai vous aider avec vos problèmes agricoles !", 'bot');
-        }, 1000);
-      }
-    }
-    
-    function sendSuggestion(suggestion) {
-      document.getElementById('chatInput').value = suggestion;
-      sendMessage();
-    }
-    
-    function handleKeyPress(event) {
-      if (event.key === 'Enter') {
-        sendMessage();
-      }
-    }
-    
-    function addMessage(text, sender) {
-      const messagesContainer = document.getElementById('chatMessages');
-      const messageDiv = document.createElement('div');
-      messageDiv.className = `message ${sender}-message`;
-      
-      const now = new Date();
-      const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
-                         now.getMinutes().toString().padStart(2, '0');
-      
-      messageDiv.innerHTML = `
-        <div class="message-avatar">${sender === 'user' ? 'U' : 'A'}</div>
-        <div class="message-content">
-          ${text}
-          <span class="message-time">${timeString}</span>
-        </div>
-      `;
-      
-      messagesContainer.appendChild(messageDiv);
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-    
-    // Message de bienvenue initial
-    document.addEventListener('DOMContentLoaded', function() {
-      setTimeout(() => {
-        addMessage("Bonjour ! Je suis l'assistant AgriDetect. Comment puis-je vous aider avec vos cultures aujourd'hui ?", 'bot');
-      }, 500);
-    });
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
