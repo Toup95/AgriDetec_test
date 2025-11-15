@@ -11,7 +11,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, validator
 from PIL import Image, UnidentifiedImageError, ImageFile
@@ -452,7 +452,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # -------------------------------------------------------------------
 # Handlers d'erreurs
 # -------------------------------------------------------------------
@@ -472,31 +471,58 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
         content={"detail": "Erreur interne du serveur.", "error": True, "timestamp": datetime.now().isoformat()},
     )
 
+# -------------------------------------------------------------------
+# Routes WEB (pages HTML)
+# -------------------------------------------------------------------
+@app.get("/", response_class=HTMLResponse, tags=["web"])
+async def home_page():
+    """
+    Sert la page d'accueil (index.html) à la racine.
+    Si le fichier est introuvable, on renvoie le JSON de statut.
+    """
+    index_path = Path("index.html")
+    if index_path.exists():
+        return index_path.read_text(encoding="utf-8")
+
+    # Fallback si jamais index.html n'existe pas
+    return JSONResponse(
+        {
+            "message": "🌾 Bienvenue sur AgriDetect API",
+            "version": APP_VERSION,
+            "status": "operational",
+            "endpoints": {
+                "detection": "/api/v1/detect-disease",
+                "chat": "/api/v1/chat",
+                "diseases": "/api/v1/diseases/common",
+                "stats": "/api/v1/statistics/dashboard",
+                "health": "/health",
+                "docs": "/docs",
+            },
+            "services": {
+                "model_loaded": DETECTOR is not None and getattr(DETECTOR, "is_loaded", False),
+                "chatbot_available": _CHAT.is_available(),
+            },
+        }
+    )
+
+
+@app.get("/index.html", response_class=HTMLResponse, tags=["web"])
+async def serve_index_html():
+    return FileResponse("index.html")
+
+
+@app.get("/chat.html", response_class=HTMLResponse, tags=["web"])
+async def serve_chat_html():
+    return FileResponse("chat.html")
+
+
+@app.get("/dashboard.html", response_class=HTMLResponse, tags=["web"])
+async def serve_dashboard_html():
+    return FileResponse("dashboard.html")
 
 # -------------------------------------------------------------------
-# Routes
+# Routes API
 # -------------------------------------------------------------------
-@app.get("/", tags=["root"])
-async def root():
-    return {
-        "message": "🌾 Bienvenue sur AgriDetect API",
-        "version": APP_VERSION,
-        "status": "operational",
-        "endpoints": {
-            "detection": "/api/v1/detect-disease",
-            "chat": "/api/v1/chat",
-            "diseases": "/api/v1/diseases/common",
-            "stats": "/api/v1/statistics/dashboard",
-            "health": "/health",
-            "docs": "/docs",
-        },
-        "services": {
-            "model_loaded": DETECTOR is not None and getattr(DETECTOR, "is_loaded", False),
-            "chatbot_available": _CHAT.is_available(),
-        },
-    }
-
-
 @app.post("/api/v1/detect-disease", response_model=DiseaseDetectionResponse, tags=["detection"])
 async def detect_disease(
     file: UploadFile = File(..., description="Image de la plante à analyser"),
@@ -536,8 +562,8 @@ async def detect_disease(
     )
 
     if "error" in result:
-      # on remonte une vraie erreur au frontend
-      raise HTTPException(status_code=500, detail=result["error"])
+        # on remonte une vraie erreur au frontend
+        raise HTTPException(status_code=500, detail=result["error"])
 
     disease_key = result.get("disease_key", "")
     disease_name_raw = result.get("disease_name", "")
@@ -643,8 +669,6 @@ async def get_dashboard_stats():
         "success_rate": 95.8,
         "active_users": 342,
         "crops_monitored": ["Tomate", "Pomme de terre", "Poivron"],
-
-        # 👉 ce bloc manquait : c’est pour “Maladies courantes”
         "common_diseases": [
             {"name": "Tomate — mildiou", "count": 320},
             {"name": "Tomate — tache bactérienne", "count": 156},
@@ -652,8 +676,6 @@ async def get_dashboard_stats():
             {"name": "Pomme de terre — mildiou", "count": 103},
             {"name": "Poivron — tache bactérienne", "count": 74},
         ],
-
-        # 👉 ça c’est ta colonne de droite
         "top_diseases": [
             {"name": "Tache bactérienne", "count": 156, "crop": "Tomate/Poivron"},
             {"name": "Brûlure précoce", "count": 124, "crop": "Tomate/Pomme de terre"},
@@ -661,7 +683,6 @@ async def get_dashboard_stats():
             {"name": "Acariens", "count": 89, "crop": "Tomate"},
             {"name": "Virus mosaïque", "count": 76, "crop": "Tomate"},
         ],
-
         "period": "30 derniers jours",
         "model_accuracy": 95.8,
         "model_precision": 97.5,
@@ -692,7 +713,11 @@ async def health():
 
 @app.get("/health/live", tags=["santé"])
 async def live():
-    return {"status": "alive", "timestamp": datetime.now().isoformat(), "uptime": time.time() - STARTUP_TIME}
+    return {
+        "status": "alive",
+        "timestamp": datetime.now().isoformat(),
+        "uptime": time.time() - STARTUP_TIME,
+    }
 
 
 @app.get("/health/ready", tags=["santé"])
@@ -714,38 +739,18 @@ async def ready():
         return JSONResponse(status_code=503, content=payload)
     return payload
 
-
 # -------------------------------------------------------------------
-# Routes pour servir les fichiers HTML statiques
-# -------------------------------------------------------------------
-@app.get("/chat.html")
-async def serve_chat():
-    """Servir la page du chatbot"""
-    return FileResponse("chat.html")
-
-@app.get("/dashboard.html")
-async def serve_dashboard():
-    """Servir la page du dashboard"""
-    return FileResponse("dashboard.html")
-
-@app.get("/index.html")
-async def serve_index():
-    """Servir la page d'accueil"""
-    return FileResponse("index.html")
-
-
-# -------------------------------------------------------------------
-# Servir tous les fichiers statiques (CSS, JS, images, etc.)
-# IMPORTANT : Cette ligne DOIT être en dernier pour ne pas intercepter les routes API
+# Fichiers statiques (CSS, JS, images…)
 # -------------------------------------------------------------------
 try:
+    # Sert tout le contenu du repo comme fichiers statiques
+    # (style.css, app.js, images, etc.)
     app.mount("/", StaticFiles(directory=".", html=True), name="static")
 except Exception as e:
     log.warning(f"⚠️ Impossible de monter les fichiers statiques: {e}")
 
-
 # -------------------------------------------------------------------
-# Entrypoint
+# Entrypoint local
 # -------------------------------------------------------------------
 if __name__ == "__main__":
     log.info(f"🚀 Démarrage du serveur AgriDetect v{APP_VERSION}")
@@ -757,4 +762,5 @@ if __name__ == "__main__":
         log_level="info",
         access_log=True,
     )
+
 
