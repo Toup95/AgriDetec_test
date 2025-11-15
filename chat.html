@@ -332,8 +332,8 @@
             <button type="button" class="suggestion-btn" onclick="sendSuggestion('Comment traiter le mildiou sur la tomate ?')">
               Comment traiter le mildiou sur la tomate ?
             </button>
-            <button type="button" class="suggestion-btn" onclick="sendSuggestion('Quels sont les symptômes de l\\'oïdium ?')">
-              Quels sont les symptômes de l’oïdium ?
+            <button type="button" class="suggestion-btn" onclick='sendSuggestion("Quels sont les symptômes de l&#39;oïdium ?")'>
+              Quels sont les symptômes de l'oïdium ?
             </button>
             <button type="button" class="suggestion-btn" onclick="sendSuggestion('Comment prévenir les maladies fongiques ?')">
               Comment prévenir les maladies fongiques ?
@@ -366,8 +366,61 @@
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script>
+    // Fonctions JavaScript pour le chat
+    function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      
+      if (message) {
+        addMessage(message, 'user');
+        input.value = '';
+        
+        // Simuler une réponse du bot
+        setTimeout(() => {
+          addMessage("Je suis l'assistant AgriDetect. Pour le moment, je suis en cours de développement. Bientôt, je pourrai vous aider avec vos problèmes agricoles !", 'bot');
+        }, 1000);
+      }
+    }
+    
+    function sendSuggestion(suggestion) {
+      document.getElementById('chatInput').value = suggestion;
+      sendMessage();
+    }
+    
+    function handleKeyPress(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    }
+    
+    function addMessage(text, sender) {
+      const messagesContainer = document.getElementById('chatMessages');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${sender}-message`;
+      
+      const now = new Date();
+      const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
+                         now.getMinutes().toString().padStart(2, '0');
+      
+      messageDiv.innerHTML = `
+        <div class="message-avatar">${sender === 'user' ? 'U' : 'A'}</div>
+        <div class="message-content">
+          ${text}
+          <span class="message-time">${timeString}</span>
+        </div>
+      `;
+      
+      messagesContainer.appendChild(messageDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    // Message de bienvenue initial
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        addMessage("Bonjour ! Je suis l'assistant AgriDetect. Comment puis-je vous aider avec vos cultures aujourd'hui ?", 'bot');
+      }, 500);
+    });
+  </script>
 </body>
-</html>
-
 </html>

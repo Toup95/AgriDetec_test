@@ -37,7 +37,7 @@
 - Statistiques en temps réel
 - Maladies les plus détectées
 - Taux de réussite du système
-- Liste des maladies courantes par région
+- Liste des maladies courantes
 
 ### 👤 Gestion des Profils
 - Création de profils utilisateurs
@@ -79,8 +79,8 @@ Avant de commencer, assurez-vous d'avoir installé :
 
 1. **Cloner le projet**
 ```bash
-git clone https://github.com/votre-repo/agridetect.git
-cd agridetect
+git clone https://github.com/FAYEmariame/AgriDetec_test.git
+cd AgriDetec_test
 ```
 
 2. **Lancer le script d'installation**
@@ -232,36 +232,37 @@ curl -X POST "http://localhost:8000/api/v1/chat" \
 ## 📁 Structure du Projet
 
 ```
-AgriDetect/
-├── main.py                 # Point d'entrée de l'API
-├── requirements.txt        # Dépendances Python
-├── docker-compose.yml      # Configuration Docker
-├── init_setup.sh          # Script d'installation
-├── start_agridetect.sh    # Script de démarrage
-├── stop_agridetect.sh     # Script d'arrêt
+AgriDetec_test/
 │
-├── app/                    # Code source de l'application
-│   ├── __init__.py
-│   ├── models/            # Modèles de données
-│   ├── routes/            # Routes API
-│   ├── services/          # Logique métier
-│   └── utils/             # Utilitaires
+├── main.py                     # Application FastAPI principale (API)
+├── chatbot.py                  # Chatbot agricole (connaissances, intents, réponses)
+├── disease_detector.py         # Détection IA (TensorFlow/Keras)
 │
-├── web/                    # Interface web
-│   ├── index.html         # Page détection
-│   ├── chat.html          # Page chat
-│   ├── dashboard.html     # Page statistiques
-│   ├── style.css          # Styles
-│   └── app.js             # Logique JavaScript
+├── index.html                  # Page de détection (upload d'image)
+├── chat.html                   # Page du chatbot
+├── dashboard.html              # Tableau de bord (statistiques)
+├── style.css                   # Styles globaux
+├── app.js                      # Logique front (fetch vers l’API)
 │
-├── data/                   # Données
-│   ├── postgres/          # Données PostgreSQL
-│   └── redis/             # Données Redis
+├── models/
+│   └── agridetect_model_20251107_042206/
+│       ├── model.h5 / model.keras
+│       ├── metadata.json
+│       ├── training_log.csv
+│       ├── classification_report.txt
+│       └── confusion_matrix.png
 │
-└── docs/                   # Documentation
-    ├── README.md          # Documentation principale
-    ├── README_WEB.md      # Documentation interface web
-    └── API.md             # Documentation API
+├── data/
+│   ├── train/                  # Images d’entraînement (par classe)
+│   ├── test/                   # Images de test (par classe)
+│   └── validation/             # Images de validation (par classe)
+│
+├── requirements.txt            # Dépendances Python
+├── Dockerfile                  # Image Docker de l’API (optionnel)
+├── docker-compose.yml          # Stack complète (API + DB + Redis) (optionnel)
+├── README.md                   # Documentation principale
+└── README_Wed.md               # Documentation interface wed
+
 ```
 
 ## 🔧 Configuration
@@ -377,7 +378,7 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
 ## 👥 Auteurs
 
-**Projet de Fin d'Étude - 2025**
+**Projet de Fin d"année -- 2025**
 - Cours DIT / Développement d'Applications
 
 ## 📞 Support
@@ -387,7 +388,7 @@ Pour toute question ou problème :
 - 📚 Documentation : http://localhost:8000/docs
 - 🐛 Issues : [GitHub Issues](https://github.com/votre-repo/agridetect/issues)
 
-## 🙏 Remerciements
+## 🙏 Ressources
 
 - TensorFlow / PyTorch pour les modèles d'IA
 - FastAPI pour le framework backend
@@ -399,5 +400,6 @@ Pour toute question ou problème :
 **Made with 💚 for Agriculture**
 
 🌾 AgriDetect v1.0.0 - Protéger les cultures, nourrir le monde
-#   A g r i D e t e c _ t e s t  
+#   A g r i D e t e c _ t e s t 
+ 
  

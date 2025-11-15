@@ -55,25 +55,56 @@ Créez cette structure :
 
 ```
 data/
-├── train/           # 70% des données
-│   ├── mildiou/
-│   │   ├── img001.jpg
-│   │   ├── img002.jpg
-│   │   └── ...
-│   ├── oidium/
-│   │   └── ...
-│   ├── healthy/
-│   │   └── ...
-│   └── autre_maladie/
-│       └── ...
-├── validation/      # 15% des données
-│   ├── mildiou/
-│   ├── oidium/
-│   └── ...
-└── test/           # 15% des données
-    ├── mildiou/
-    ├── oidium/
-    └── ...
+├── train/                  # ~70% des images
+│   ├── Pepper__bell___Bacterial_spot/
+│   ├── Pepper__bell___healthy/
+│   ├── Potato___Early_blight/
+│   ├── Potato___Late_blight/
+│   ├── Potato___healthy/
+│   ├── Tomato_Bacterial_spot/
+│   ├── Tomato_Early_blight/
+│   ├── Tomato_Late_blight/
+│   ├── Tomato_Leaf_Mold/
+│   ├── Tomato_Septoria_leaf_spot/
+│   ├── Tomato_Spider_mites_Two_spotted_spider_mite/
+│   ├── Tomato__Target_Spot/
+│   ├── Tomato__Tomato_YellowLeaf__Curl_Virus/
+│   ├── Tomato__Tomato_mosaic_virus/
+│   └── Tomato_healthy/
+│
+├── validation/             # ~15% des images
+│   ├── Pepper__bell___Bacterial_spot/
+│   ├── Pepper__bell___healthy/
+│   ├── Potato___Early_blight/
+│   ├── Potato___Late_blight/
+│   ├── Potato___healthy/
+│   ├── Tomato_Bacterial_spot/
+│   ├── Tomato_Early_blight/
+│   ├── Tomato_Late_blight/
+│   ├── Tomato_Leaf_Mold/
+│   ├── Tomato_Septoria_leaf_spot/
+│   ├── Tomato_Spider_mites_Two_spotted_spider_mite/
+│   ├── Tomato__Target_Spot/
+│   ├── Tomato__Tomato_YellowLeaf__Curl_Virus/
+│   ├── Tomato__Tomato_mosaic_virus/
+│   └── Tomato_healthy/
+│
+└── test/                   # ~15% des images
+    ├── Pepper__bell___Bacterial_spot/
+    ├── Pepper__bell___healthy/
+    ├── Potato___Early_blight/
+    ├── Potato___Late_blight/
+    ├── Potato___healthy/
+    ├── Tomato_Bacterial_spot/
+    ├── Tomato_Early_blight/
+    ├── Tomato_Late_blight/
+    ├── Tomato_Leaf_Mold/
+    ├── Tomato_Septoria_leaf_spot/
+    ├── Tomato_Spider_mites_Two_spotted_spider_mite/
+    ├── Tomato__Target_Spot/
+    ├── Tomato__Tomato_YellowLeaf__Curl_Virus/
+    ├── Tomato__Tomato_mosaic_virus/
+    └── Tomato_healthy/
 ```
 
 ### Étape 2 : Obtenir des Images
@@ -160,7 +191,7 @@ class Config:
     
     # Architecture
     USE_PRETRAINED = True
-    PRETRAINED_MODEL = "MobileNetV2"  # ou "EfficientNetB0"
+    PRETRAINED_MODEL = "EfficientNetB0" # ou "MobileNetV2"   
     FREEZE_LAYERS = True
 ```
 
@@ -190,11 +221,11 @@ L'entraînement va :
 Vous verrez quelque chose comme :
 
 ```
-Epoch 1/50
+Epoch 1/60
 45/45 [==============================] - 25s 556ms/step 
 - loss: 0.8234 - accuracy: 0.7125 - val_loss: 0.6543 - val_accuracy: 0.7833
 
-Epoch 2/50
+Epoch 2/60
 45/45 [==============================] - 22s 489ms/step 
 - loss: 0.6123 - accuracy: 0.8012 - val_loss: 0.5234 - val_accuracy: 0.8250
 ...
@@ -202,9 +233,9 @@ Epoch 2/50
 
 ### Temps d'Entraînement Estimé
 
-| Configuration | Temps par Epoch | Total (50 epochs) |
+| Configuration | Temps par Epoch | Total (60 epochs)|
 |--------------|----------------|------------------|
-| CPU only | ~5-10 min | 4-8 heures |
+| CPU only | ~5-10 min | 6-12 h |
 | GPU (GTX 1060) | ~30-60 sec | 25-50 min |
 | GPU (RTX 3080) | ~15-30 sec | 12-25 min |
 
@@ -218,13 +249,14 @@ Après l'entraînement, vous aurez :
 
 ```
 models/
-└── agridetect_model_20250128_143022/
-    ├── model.h5                # Modèle Keras
-    ├── saved_model/            # Format TensorFlow SavedModel
-    ├── checkpoint.h5           # Meilleur checkpoint
-    ├── metadata.json           # Informations du modèle
-    ├── history.json            # Historique d'entraînement
-    └── training_curves.png     # Graphiques
+└── agridetect_model_20251107_042206/
+    ├── best_model.weights.h5
+    ├── fine_tuned_model.weights.h5
+    ├── metadata.json
+    ├── model.h5
+    ├── model.keras
+    └── training_log.csv
+
 ```
 
 ### Analyser les Résultats
@@ -253,7 +285,7 @@ Ouvrez `training_curves.png` :
 from model_predictor import DiseaseDetector
 
 # Charger le modèle
-detector = DiseaseDetector("models/agridetect_model_20250128_143022")
+detector = DiseaseDetector("models\agridetect_model_20251107_042206")
 
 # Tester
 result = detector.detect_disease("test_image.jpg")
@@ -266,9 +298,9 @@ print(f"Confiance: {result['confidence']:.2%}")
 
 Un bon modèle devrait avoir :
 
-- **Accuracy globale** : > 85%
-- **Top-3 Accuracy** : > 95%
-- **Confiance moyenne** : > 80%
+- **Accuracy globale** : > 95,85%
+- **Top-3 Accuracy** : > 99,74%
+- **Confiance moyenne** : > 97,53%
 
 ---
 
@@ -278,7 +310,7 @@ Un bon modèle devrait avoir :
 
 ```bash
 # Copier le modèle dans le dossier de l'API
-cp -r models/agridetect_model_20250128_143022 /chemin/vers/api/models/
+cp -r models/agridetect_model_20251107_042206 /chemin/vers/api/models/
 ```
 
 ### Étape 2 : Modifier l'API
@@ -289,7 +321,7 @@ Dans votre `main.py` ou `routes/detection.py` :
 from model_predictor import DiseaseDetector
 
 # Charger le modèle au démarrage
-MODEL_PATH = "models/agridetect_model_20250128_143022"
+MODEL_PATH = "models/agridetect_model_20251107_042206"
 detector = DiseaseDetector(MODEL_PATH)
 
 @app.post("/api/v1/detect-disease")
@@ -439,7 +471,7 @@ if gpus:
 
 Avant de déployer en production :
 
-- [ ] Accuracy > 85% sur le test set
+- [ ] Accuracy > 90% sue le test set
 - [ ] Testé sur des images réelles (pas du dataset)
 - [ ] Modèle optimisé (taille < 100MB)
 - [ ] Documentation des classes

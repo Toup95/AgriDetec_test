@@ -23,7 +23,7 @@ Assurez-vous que votre API AgriDetect est lancée :
 
 ```bash
 # Dans votre terminal Git Bash
-cd /e/court_DIT_24072025/Cours\ DIT/projet\ de\ fin\ etude/Projet_de_fin_Etude
+cd /e/court_DIT_24072025/Cours\ DIT/projet\ de\ fin\ etude/AgriDetec_test
 source venv/Scripts/activate
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
@@ -214,6 +214,6 @@ Pour toute question ou problème :
 
 ---
 
-**Projet de Fin d'Étude - 2025**
+**Projet de Fin d'année - 2025**
 
 🌾 AgriDetect v1.0.0 - Détection Intelligente des Maladies des Cultures
