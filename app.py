@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
-import tensorflow as tf
 from PIL import Image
 import numpy as np
 import os
@@ -16,6 +15,21 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# =======================
+# LAZY LOADING TENSORFLOW
+# =======================
+_tf_loaded = False
+tf = None
+
+def load_tensorflow():
+    """Charge TensorFlow seulement quand nécessaire (lazy loading)"""
+    global tf, _tf_loaded
+    if not _tf_loaded:
+        import tensorflow as _tf
+        tf = _tf
+        _tf_loaded = True
+    return tf
 
 # =======================
 # CONSTANTES ET CONFIGURATION
@@ -100,6 +114,9 @@ def load_model():
         model_path = "models/agridetect_model_20251107_042206"
         if not os.path.exists(model_path):
             return None, f"❌ Modèle non trouvé dans {model_path}"
+        
+        # Charger TensorFlow seulement maintenant
+        tf = load_tensorflow()
         
         # Essayer de charger avec TF 2.x (Keras 3)
         try:
