@@ -319,9 +319,8 @@ def page_detection(language, t, model, model_error):
     st.markdown(f"### {t['subtitle']}")
     
     if model_error:
-        st.error(model_error)
-        st.info("🔧 Pour utiliser la détection, assurez-vous que le modèle est disponible dans le dossier `models/`")
-        return
+        st.warning("⚠️ Le modèle IA complet n'est pas disponible. **Mode Démo Intelligent activé** !")
+        st.info("📸 **Vous pouvez quand même tester la détection !** Le système analysera les couleurs et textures de votre image pour donner une prédiction réaliste.")
     
     col1, col2 = st.columns([1, 1])
     
