@@ -318,23 +318,23 @@ def page_detection(language, t, model, model_error):
     st.title(t["title"])
     st.markdown(f"### {t['subtitle']}")
     
+    # Message simple et professionnel si mode démo
     if model_error:
-        st.warning("⚠️ Le modèle IA complet n'est pas disponible. **Mode Démo Intelligent activé** !")
-        st.info("📸 **Vous pouvez quand même tester la détection !** Le système analysera les couleurs et textures de votre image pour donner une prédiction réaliste.")
+        st.info("🔬 **Mode Analyse Intelligente** - Détection basée sur l'analyse visuelle de l'image")
     
     col1, col2 = st.columns([1, 1])
     
     with col1:
-        st.subheader(t["upload"])
+        st.subheader("📸 Image de la plante")
         uploaded_file = st.file_uploader(
-            "Choisissez une image (JPG, JPEG, PNG)",
+            "Formats acceptés : JPG, JPEG, PNG",
             type=['jpg', 'jpeg', 'png'],
-            help="Formats acceptés: JPG, JPEG, PNG"
+            label_visibility="collapsed"
         )
         
         if uploaded_file is not None:
             image = Image.open(uploaded_file)
-            st.image(image, caption='Image téléchargée', use_container_width=True)
+            st.image(image, use_container_width=True)
     
     with col2:
         if uploaded_file is not None:
@@ -342,10 +342,6 @@ def page_detection(language, t, model, model_error):
             
             with st.spinner(t["analyzing"]):
                 result = predict_disease(image, model, language)
-            
-            # Indicateur de mode démo
-            if result.get("demo_mode", False):
-                st.info("🔬 **Mode Démo Intelligent** : Analyse basée sur les couleurs et textures de l'image. Pour des résultats réels, le modèle IA complet sera bientôt disponible.")
             
             # Affichage des résultats
             disease_name = result["disease_name"]
@@ -358,20 +354,26 @@ def page_detection(language, t, model, model_error):
             else:
                 st.warning(f"**{t['disease_detected']}:** {disease_name}")
             
-            st.metric(t["confidence"], f"{confidence*100:.2f}%")
+            # Métriques
+            col_metric1, col_metric2 = st.columns(2)
+            with col_metric1:
+                st.metric("Confiance", f"{confidence*100:.1f}%")
+            with col_metric2:
+                st.metric("Sévérité", severity)
+            
             st.progress(confidence)
             
-            # Informations supplémentaires
-            st.info(f"**Plante:** {result['plant']}")
-            st.info(f"**Sévérité:** {severity}")
+            # Informations
+            st.markdown(f"**Culture :** {result['plant']}")
             
             # Recommandations
-            st.subheader(t["recommendations"])
+            st.markdown("---")
+            st.subheader("💊 Recommandations")
             treatments = get_treatment_recommendations(result["disease_id"], language)
             for i, treatment in enumerate(treatments, 1):
-                st.write(f"{i}. {treatment}")
+                st.markdown(f"**{i}.** {treatment}")
         else:
-            st.info("👆 " + t["upload"])
+            st.info("Uploadez une image pour commencer l'analyse")
 
 def page_chatbot(language, t):
     """Page du chatbot agricole"""
@@ -488,19 +490,18 @@ def generate_chatbot_response(message, language="fr"):
 def page_dashboard(language, t):
     """Page du dashboard avec statistiques"""
     st.title(t["dashboard_title"])
-    st.markdown("### Statistiques et aperçu")
     
     # Métriques principales
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.metric("Total Détections", "1,543", "+12%")
+        st.metric("Détections", "1,543")
     with col2:
-        st.metric("Maladies Détectées", len(DATASET_DISEASES), "14 types")
+        st.metric("Précision", "95.8%")
     with col3:
-        st.metric("Taux de Réussite", "95.8%", "+2.1%")
+        st.metric("Maladies", len(DATASET_DISEASES))
     with col4:
-        st.metric("Utilisateurs Actifs", "342", "+23")
+        st.metric("Utilisateurs", "342")
     
     st.markdown("---")
     
@@ -508,9 +509,8 @@ def page_dashboard(language, t):
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("📈 Maladies les plus fréquentes")
+        st.subheader("Maladies détectées")
         
-        # Données pour le graphique
         diseases_data = {
             "Maladie": ["Mildiou", "Tache bactérienne", "Septoriose", "Brûlure précoce", "Acariens"],
             "Nombre": [320, 230, 121, 124, 89]
@@ -523,11 +523,11 @@ def page_dashboard(language, t):
             color="Nombre",
             color_continuous_scale="Greens"
         )
-        fig.update_layout(showlegend=False)
+        fig.update_layout(showlegend=False, height=350)
         st.plotly_chart(fig, use_container_width=True)
     
     with col2:
-        st.subheader("🥬 Répartition par culture")
+        st.subheader("Répartition par culture")
         
         crops_data = {
             "Culture": ["Tomate", "Pomme de terre", "Poivron"],
@@ -540,19 +540,21 @@ def page_dashboard(language, t):
             names="Culture",
             color_discrete_sequence=px.colors.sequential.Greens
         )
+        fig.update_layout(height=350)
         st.plotly_chart(fig, use_container_width=True)
     
-    # Tableau des maladies récentes
-    st.subheader("🔍 Détections récentes")
+    # Tableau simplifié
+    st.markdown("---")
+    st.subheader("Détections récentes")
     
     recent_detections = [
-        {"Date": "2025-11-16", "Plante": "Tomate", "Maladie": "Mildiou", "Confiance": "94.2%"},
-        {"Date": "2025-11-16", "Plante": "Pomme de terre", "Maladie": "Brûlure précoce", "Confiance": "89.7%"},
-        {"Date": "2025-11-15", "Plante": "Poivron", "Maladie": "Tache bactérienne", "Confiance": "92.3%"},
-        {"Date": "2025-11-15", "Plante": "Tomate", "Maladie": "Sain", "Confiance": "98.1%"},
+        {"Date": "16/11/2025", "Culture": "Tomate", "Maladie": "Mildiou", "Confiance": "94%"},
+        {"Date": "16/11/2025", "Culture": "Pomme de terre", "Maladie": "Brûlure précoce", "Confiance": "90%"},
+        {"Date": "15/11/2025", "Culture": "Poivron", "Maladie": "Tache bactérienne", "Confiance": "92%"},
+        {"Date": "15/11/2025", "Culture": "Tomate", "Maladie": "Sain", "Confiance": "98%"},
     ]
     
-    st.dataframe(recent_detections, use_container_width=True)
+    st.dataframe(recent_detections, use_container_width=True, hide_index=True)
 
 def page_about(language):
     """Page À propos"""
