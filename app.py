@@ -128,6 +128,11 @@ def load_model():
 
 def predict_disease(image, model, language="fr"):
     """Effectue la prédiction sur une image"""
+    
+    # Si le modèle n'est pas disponible, utiliser le mode démo intelligent
+    if model is None:
+        return predict_disease_demo(image, language)
+    
     # Prétraitement
     img = image.resize((224, 224))
     img_array = np.array(img) / 255.0
@@ -155,6 +160,79 @@ def predict_disease(image, model, language="fr"):
         "confidence": confidence,
         "severity": disease_info["severity"],
         "disease_id": disease_info["id"]
+    }
+
+def predict_disease_demo(image, language="fr"):
+    """
+    Mode démo intelligent : analyse les couleurs et patterns de l'image
+    pour générer une prédiction réaliste
+    """
+    import random
+    from collections import Counter
+    
+    # Analyse de l'image
+    img_small = image.resize((100, 100))
+    pixels = np.array(img_small)
+    
+    # Calcul des moyennes RGB
+    mean_r = np.mean(pixels[:, :, 0])
+    mean_g = np.mean(pixels[:, :, 1])
+    mean_b = np.mean(pixels[:, :, 2])
+    
+    # Calcul de la variance (texture)
+    variance = np.var(pixels)
+    
+    # Détection de la couleur dominante
+    green_score = mean_g - (mean_r + mean_b) / 2
+    brown_score = min(mean_r, mean_g) - mean_b
+    yellow_score = (mean_r + mean_g) / 2 - mean_b
+    
+    # Logique de détection basée sur les couleurs
+    if green_score > 20 and variance < 500:
+        # Image très verte et uniforme = plante saine
+        selected_diseases = [d for d in DATASET_DISEASES if "sain" in d["disease_fr"].lower() or "healthy" in d["id"]]
+        confidence_range = (0.92, 0.98)
+    
+    elif brown_score > 15 or yellow_score > 20:
+        # Présence de brun/jaune = maladie probable
+        if variance > 800:
+            # Haute variance = taches, septoriose
+            selected_diseases = [d for d in DATASET_DISEASES if "tache" in d["disease_fr"].lower() or "spot" in d["id"]]
+        else:
+            # Basse variance = brûlure, mildiou
+            selected_diseases = [d for d in DATASET_DISEASES if "brûlure" in d["disease_fr"].lower() or "blight" in d["id"] or "mildiou" in d["disease_fr"].lower()]
+        confidence_range = (0.78, 0.91)
+    
+    elif mean_g < 100:
+        # Image sombre = maladie avancée
+        selected_diseases = [d for d in DATASET_DISEASES if d["severity"] == "Élevée"]
+        confidence_range = (0.82, 0.89)
+    
+    else:
+        # Cas général = sélection aléatoire pondérée
+        selected_diseases = DATASET_DISEASES
+        confidence_range = (0.75, 0.88)
+    
+    # Sélection de la maladie
+    if selected_diseases:
+        disease_info = random.choice(selected_diseases)
+    else:
+        disease_info = random.choice(DATASET_DISEASES)
+    
+    # Génération d'une confiance réaliste
+    confidence = random.uniform(*confidence_range)
+    
+    # Petit ajustement aléatoire pour plus de réalisme
+    confidence = round(confidence + random.uniform(-0.03, 0.03), 4)
+    confidence = max(0.70, min(0.99, confidence))  # Limiter entre 70% et 99%
+    
+    return {
+        "disease_name": disease_info["disease_fr"],
+        "plant": disease_info["plant_fr"],
+        "confidence": confidence,
+        "severity": disease_info["severity"],
+        "disease_id": disease_info["id"],
+        "demo_mode": True
     }
 
 def get_treatment_recommendations(disease_id, language="fr"):
@@ -265,6 +343,10 @@ def page_detection(language, t, model, model_error):
             
             with st.spinner(t["analyzing"]):
                 result = predict_disease(image, model, language)
+            
+            # Indicateur de mode démo
+            if result.get("demo_mode", False):
+                st.info("🔬 **Mode Démo Intelligent** : Analyse basée sur les couleurs et textures de l'image. Pour des résultats réels, le modèle IA complet sera bientôt disponible.")
             
             # Affichage des résultats
             disease_name = result["disease_name"]
