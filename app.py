@@ -98,11 +98,31 @@ def load_model():
     """Charge le modèle de détection"""
     try:
         model_path = "models/agridetect_model_20251107_042206"
-        if os.path.exists(model_path):
-            model = tf.keras.models.load_model(model_path)
-            return model, None
-        else:
+        if not os.path.exists(model_path):
             return None, f"❌ Modèle non trouvé dans {model_path}"
+        
+        # Essayer de charger avec TF 2.x (Keras 3)
+        try:
+            import tf_keras
+            model = tf_keras.models.load_model(model_path)
+            return model, None
+        except:
+            pass
+        
+        # Fallback: essayer avec Keras standard
+        try:
+            model = tf.keras.models.load_model(model_path, compile=False)
+            return model, None
+        except Exception as keras_error:
+            return None, (
+                f"⚠️ Modèle non compatible avec cette version de Keras.\n\n"
+                f"Le modèle a été entraîné avec Keras 2 mais Streamlit Cloud utilise Keras 3.\n\n"
+                f"**Solutions possibles:**\n"
+                f"1. Héberger le modèle sur Hugging Face\n"
+                f"2. Ré-entraîner avec Keras 3\n"
+                f"3. Utiliser un modèle pré-entraîné compatible\n\n"
+                f"**En attendant, testez le Chatbot et le Dashboard !** 🚀"
+            )
     except Exception as e:
         return None, f"Erreur lors du chargement : {str(e)}"
 
